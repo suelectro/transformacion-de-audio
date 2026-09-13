@@ -61,3 +61,24 @@ sound(y_invertida,fs);
 
 %% pausa
 pause(N/fs);
+
+%% escalonamiento
+alpha = input('Ingrese el valor de alpha para el escalamiento: ');
+N= length(x);
+%% numero de muestras:
+posiciondelasenal= floor(N/alpha);
+y_escalonada= zeros(posiciondelasenal,1);
+for k = 1: posiciondelasenal
+escalonamiento = alpha *(k-1) +1 ;
+y_escalonada(k) = x(escalonamiento);
+end
+%% Graficar
+muestras_escalonadas= 0:posiciondelasenal-1;
+t_escalonado = muestras_escalonadas/fs;
+figure;
+plot(t_escalonado,y_escalonada);
+xlabel('Segundos');
+ylabel('Amplitud Señal');
+title('Señal escalonada');
+
+sound(y_escalonada,fs);
