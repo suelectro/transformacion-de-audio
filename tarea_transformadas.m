@@ -84,22 +84,52 @@ pause(N/fs);
 %% escalonamiento
 alpha = input('Ingrese el valor de alpha para el escalamiento: ');
 N= length(x);
-%% numero de muestras:
-posiciondelasenal= floor(N/alpha);
-y_escalonada= zeros(posiciondelasenal,1);
-for k = 1: posiciondelasenal
-    escalonamiento = alpha *(k-1) +1 ;
-    y_escalonada(k) = x(escalonamiento);
+if alpha >= 1 && mod(alpha,1) == 0
+    %% comprecion
+    posiciondelasenal = floor((N-1)/alpha) + 1;
+    y_escalonada = zeros(posiciondelasenal,1);
+    for k = 1:posiciondelasenal
+        escalonamiento = alpha*(k-1) + 1;
+        y_escalonada(k) = x(escalonamiento);
+    end
+    %% Graficar
+    muestras_escalonadas = 0:posiciondelasenal-1;
+    t_escalonado = muestras_escalonadas/fs;
+    figure;
+    plot(t_escalonado,y_escalonada);
+    xlabel('Segundos');
+    ylabel('Amplitud Señal');
+    title(sprintf('Señal comprimida (alpha = %d)', alpha));
+    sound(y_escalonada,fs);
+    pause(length(y_escalonada)/fs);
+
+elseif alpha > 0 && alpha < 1
+    %% expancion
+    L = round(1/alpha);
+    if abs(1/alpha - L) > 1e-9
+        fprintf('El valor ingresado no corresponde a 1/L con L entero. Intente de nuevo.\n');
+    else
+        posiciondelasenal = (N-1)*L + 1;
+        y_escalonada = zeros(posiciondelasenal,1);
+        for k = 1:N
+            idx = (k-1)*L + 1;
+            y_escalonada(idx) = x(k);
+        end
+        %% Graficar
+        muestras_escalonadas = 0:posiciondelasenal-1;
+        t_escalonado = muestras_escalonadas/fs;
+        figure;
+        plot(t_escalonado,y_escalonada);
+        xlabel('Segundos');
+        ylabel('Amplitud Señal');
+        title(sprintf('Señal expandida (alpha = 1/%d)', L));
+        sound(y_escalonada,fs);
+        pause(length(y_escalonada)/fs);
+    end
+
+else
+    fprintf('Valor de alpha no válido.\n');
 end
-%% Graficar
-muestras_escalonadas= 0:posiciondelasenal-1;
-t_escalonado = muestras_escalonadas/fs;
-figure;
-plot(t_escalonado,y_escalonada);
-xlabel('Segundos');
-ylabel('Amplitud Señal');
-title('Señal escalonada');
-sound(y_escalonada,fs);
     case 0
         fprintf('\nPrograma finalizado.\n');
 
